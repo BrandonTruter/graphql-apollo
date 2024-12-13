@@ -2,32 +2,26 @@ import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import gql from "graphql-tag";
+import { readFileSync } from "fs";
 
-import dogs from "./data/dogs.js";
+import dogs from "./dogs.json" assert { type: "json" };
 
-const typeDefs = gql`
-  type Dog {
-    id: ID!
-    name: String!
-    weight: Float!
-    photo: Photo!
-  }
-
-  type Photo {
-    full: String!
-    thumb: String!
-  }
-
-  type Query {
-    allDogs: [Dog!]!
-    dogCount: Int!
-  }
-`;
+const typeDefs = gql(
+    readFileSync("schema.graphql", { encoding: "utf-8" })
+);
 
 const resolvers = {
   Query: {
     allDogs: () => dogs,
     dogCount: () => dogs.length
+  },
+  Dog: {
+    __resolveReference: ({id}) =>
+        dogs.find((dog) => dog.id === id)
+  },
+  Cat: {
+    dogBestFriend: ({id}) =>
+        dogs.find((dog) => dog.unlikelyFriend === id)
   }
 };
 
