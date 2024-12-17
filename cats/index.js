@@ -23,6 +23,22 @@ const resolvers = {
   Cat: {
     __resolveReference: ({id}) =>
         cats.find((cat) => cat.id === id)
+  },
+  Mutation: {
+    setEmotionalStatus: (root, {id, status}) => {
+      let updatedStatus = cats.find(cat => id === cat.id);
+      if (!updatedStatus) {
+        return {
+          message: "No cat with that id. Try again!"
+        };
+      }
+      updatedStatus.status = status;
+      return updatedStatus;
+    }
+  },
+  EmotionalStatusResponse: {
+    __resolveType: (root) =>
+        root.name ? "Cat" : "Error"
   }
 };
 
