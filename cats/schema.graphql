@@ -1,0 +1,55 @@
+extend schema
+@link(
+    url: "https://specs.apollo.dev/federation/v2.5"
+    import: ["@key", "@shareable"]
+)
+
+type Cat @key(fields: "id") {
+    id: ID!
+    name: String!
+    weight: Float!
+    @deprecated(reason: "Use petWeight field instead")
+    petWeight: Float!
+    photo: Photo!
+    curious: Boolean!
+    status: EmotionalStatus!
+}
+
+type Dog @key(fields: "id") {
+    id: ID!
+    catBestFriend: Cat
+}
+
+type Photo @shareable {
+    full: String!
+    thumb: String!
+}
+
+type Query {
+    allCats: [Cat!]!
+    catCount: Int!
+    _service: _Service!
+}
+
+union EmotionalStatusResponse = Error | Cat
+
+type Error {
+    message: String!
+}
+
+type Mutation {
+    setEmotionalStatus(id: ID!, status: EmotionalStatus!): EmotionalStatusResponse!
+}
+
+enum EmotionalStatus {
+    HAPPY
+    SAD
+}
+
+scalar _FieldSet
+
+scalar _Any
+
+type _Service {
+    sdl: String
+}
